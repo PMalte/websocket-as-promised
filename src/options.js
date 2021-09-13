@@ -5,7 +5,7 @@
 /**
  * @typedef {Object} Options
  * @property {Function} [createWebSocket=url => new WebSocket(url)] - custom function for WebSocket construction.
-  *
+ *
  * @property {Function} [packMessage=noop] - packs message for sending. For example, `data => JSON.stringify(data)`.
  *
  * @property {Function} [unpackMessage=noop] - unpacks received message. For example, `data => JSON.parse(data)`.
@@ -15,6 +15,9 @@
  *
  * @property {Function} [extractRequestId=noop] - extracts request id from received data.
  * For example, `data => data.requestId`.
+ *
+ * @property {Function} [isPossibleResponse=(data, metaData) => true] - checks if received data fits a sent request
+ * For example, `data, metaData => true`.
  *
  * @property {Function} [extractMessageData=event => event.data] - extracts data from event object.
  *
@@ -33,7 +36,7 @@ module.exports = {
    * @param {String} url
    * @returns {WebSocket}
    */
-  createWebSocket: url => new WebSocket(url),
+  createWebSocket: (url) => new WebSocket(url),
 
   /**
    * See {@link Options.packMessage}
@@ -74,7 +77,16 @@ module.exports = {
    * @param {*} event
    * @returns {*}
    */
-  extractMessageData: event => event.data,
+  extractMessageData: (event) => event.data,
+
+  /**
+   * See {@link Options.isPossibleResponse}
+   *
+   * @param {*} data
+   * @param {*} metaData
+   * @returns {Boolean}
+   */
+  isPossibleResponse: () => true,
 
   /**
    * See {@link Options.timeout}

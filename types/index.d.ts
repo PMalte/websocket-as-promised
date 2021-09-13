@@ -4,8 +4,8 @@ import Options = require('./options');
 
 export = WebSocketAsPromised;
 
-declare class WebSocketAsPromised {
-    constructor(url: string, options?: Options);
+declare class WebSocketAsPromised<T = void> {
+    constructor(url: string, options?: Options<T>);
     ws: WebSocket;
     isOpening: boolean;
     isOpened: boolean;
@@ -15,11 +15,12 @@ declare class WebSocketAsPromised {
     onSend: Channel;
     onMessage: Channel;
     onUnpackedMessage: Channel;
+    onRequest: Channel;
     onResponse: Channel;
     onClose: Channel;
     onError: Channel;
     open: () => Promise<Event>;
-    sendRequest: (data: any, options?: RequestOptions) => Promise<any>;
+    sendRequest: (data: any, options?: RequestOptions<T>) => Promise<any>;
     sendPacked: (data: any) => void;
     send: (data: string | ArrayBuffer | Blob) => void;
     waitUnpackedMessage: (predicate: (data: any) => boolean, options?: WaitUnpackedMessageOptions) => Promise<any>
@@ -27,8 +28,9 @@ declare class WebSocketAsPromised {
     removeAllListeners: () => void;
 }
 
-declare interface RequestOptions {
+declare interface RequestOptions<T> {
     requestId?: string | number;
+    requestMetaData?: T;
     timeout?: number;
 }
 

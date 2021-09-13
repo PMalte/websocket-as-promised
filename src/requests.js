@@ -15,44 +15,58 @@ module.exports = class Requests {
    * Creates new request and stores it in the list.
    *
    * @param {String|Number} requestId
+   * @param {*} requestMetadata
    * @param {Function} fn
    * @param {Number} timeout
    * @returns {Promise}
    */
-  create(requestId, fn, timeout) {
+  //rule disabled to provide downward compatiblility, 4th parameter is optional
+  // eslint-disable-next-line max-params
+  create(requestId, fn, timeout, requestMetadata) {
     this._rejectExistingRequest(requestId);
-    return this._createNewRequest(requestId, fn, timeout);
+    return this._createNewRequest(requestId, fn, timeout, requestMetadata);
   }
 
   resolve(requestId, data) {
     if (requestId && this._items.has(requestId)) {
-      this._items.get(requestId).resolve(data);
+      this._items.get(requestId).request.resolve(data);
     }
   }
 
+  has(requestId) {
+    return requestId && this._items.has(requestId);
+  }
+
+  getMetadata(requestId){
+    return this._items.get(requestId).metaData;
+  }
+
   rejectAll(error) {
-    this._items.forEach(request => request.isPending ? request.reject(error) : null);
+    this._items.forEach(entry => entry.request.isPending ? entry.request.reject(error) : null);
   }
 
   _rejectExistingRequest(requestId) {
     const existingRequest = this._items.get(requestId);
-    if (existingRequest && existingRequest.isPending) {
-      existingRequest.reject(new Error(`WebSocket request is replaced, id: ${requestId}`));
+    if (existingRequest && existingRequest.request.isPending) {
+      existingRequest.request.reject(new Error(`WebSocket request is replaced, id: ${requestId}`));
     }
   }
 
-  _createNewRequest(requestId, fn, timeout) {
+  //rule disabled to provide downward compatiblility, 4th parameter is optional
+  // eslint-disable-next-line max-params
+  _createNewRequest(requestId, fn, timeout, requestMetadata) {
     const request = new PromiseController({
       timeout,
       timeoutReason: `WebSocket request was rejected by timeout (${timeout} ms). RequestId: ${requestId}`
     });
-    this._items.set(requestId, request);
+    const entry = {request: request, metaData: requestMetadata};
+    this._items.set(requestId, entry);
     return promiseFinally(request.call(fn), () => this._deleteRequest(requestId, request));
   }
 
   _deleteRequest(requestId, request) {
     // this check is important when request was replaced
-    if (this._items.get(requestId) === request) {
+    if (this._items.get(requestId).request === request) {
       this._items.delete(requestId);
     }
   }
