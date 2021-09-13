@@ -212,6 +212,19 @@ class WebSocketAsPromised {
   }
 
   /**
+   * Event channel triggered when by Websocket 'upgrade' event.
+   *
+   * @see https://vitalets.github.io/chnl/#channel
+   * @example
+   * wsp.onUpgrade.addListener(event => console.error(event));
+   *
+   * @returns {Channel}
+   */
+   get onUpgrade() {
+    return this._onUpgrade;
+  }
+
+  /**
    * Opens WebSocket connection. If connection already opened, promise will be resolved with "open event".
    *
    * @returns {Promise<Event>}
@@ -322,6 +335,7 @@ class WebSocketAsPromised {
     this._onSend.removeAllListeners();
     this._onClose.removeAllListeners();
     this._onError.removeAllListeners();
+    this._onUpgrade.removeAllListeners();
   }
 
   _createOpeningController() {
@@ -349,6 +363,7 @@ class WebSocketAsPromised {
     this._onSend = new Channel();
     this._onClose = new Channel();
     this._onError = new Channel();
+    this._onUpgrade = new Channel();
   }
 
   _createWS() {
@@ -358,6 +373,7 @@ class WebSocketAsPromised {
       { channel: this._ws, event: 'message', listener: e => this._handleMessage(e) },
       { channel: this._ws, event: 'error', listener: e => this._handleError(e) },
       { channel: this._ws, event: 'close', listener: e => this._handleClose(e) },
+      { channel: this._ws, event: 'upgrade', listener: e => this._handleUpgrade(e) },
     ]).on();
   }
 
@@ -422,6 +438,10 @@ class WebSocketAsPromised {
 
   _handleError(event) {
     this._onError.dispatchAsync(event);
+  }
+
+  _handleUpgrade(event) {
+    this._onUpgrade.dispatchAsync(event);
   }
 
   _handleClose(event) {
