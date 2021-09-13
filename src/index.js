@@ -225,6 +225,19 @@ class WebSocketAsPromised {
   }
 
   /**
+   * Event channel triggered when by Websocket 'ping' event.
+   *
+   * @see https://vitalets.github.io/chnl/#channel
+   * @example
+   * wsp.onPing.addListener(event => console.error(event));
+   *
+   * @returns {Channel}
+   */
+   get onPing() {
+    return this._onPing;
+  }
+
+  /**
    * Opens WebSocket connection. If connection already opened, promise will be resolved with "open event".
    *
    * @returns {Promise<Event>}
@@ -336,6 +349,7 @@ class WebSocketAsPromised {
     this._onClose.removeAllListeners();
     this._onError.removeAllListeners();
     this._onUpgrade.removeAllListeners();
+    this._onPing.removeAllListeners();
   }
 
   _createOpeningController() {
@@ -364,6 +378,7 @@ class WebSocketAsPromised {
     this._onClose = new Channel();
     this._onError = new Channel();
     this._onUpgrade = new Channel();
+    this._onPing = new Channel();
   }
 
   _createWS() {
@@ -374,6 +389,7 @@ class WebSocketAsPromised {
       { channel: this._ws, event: 'error', listener: e => this._handleError(e) },
       { channel: this._ws, event: 'close', listener: e => this._handleClose(e) },
       { channel: this._ws, event: 'upgrade', listener: e => this._handleUpgrade(e) },
+      { channel: this._ws, event: 'ping', listener: e => this._handlePing(e) },
     ]).on();
   }
 
@@ -442,6 +458,10 @@ class WebSocketAsPromised {
 
   _handleUpgrade(event) {
     this._onUpgrade.dispatchAsync(event);
+  }
+
+  _handlePing(event) {
+    this._onPing.dispatchAsync(event);
   }
 
   _handleClose(event) {

@@ -13,6 +13,7 @@ describe('removeAllListeners', function () {
     wsp.onClose.addListener(noop);
     wsp.onError.addListener(noop);
     wsp.onUpgrade.addListener(noop);
+    wsp.onPing.addListener(noop);
 
     wsp.removeAllListeners();
 
@@ -25,6 +26,7 @@ describe('removeAllListeners', function () {
     assert.equal(wsp.onClose.hasListeners(), false, 'onClose');
     assert.equal(wsp.onError.hasListeners(), false, 'onError');
     assert.equal(wsp.onUpgrade.hasListeners(), false, 'onUpgrade');
+    assert.equal(wsp.onPing.hasListeners(), false, 'onPing');
   });
 
 });

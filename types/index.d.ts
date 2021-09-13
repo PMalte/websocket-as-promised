@@ -20,6 +20,7 @@ declare class WebSocketAsPromised<T = void> {
     onClose: Channel;
     onError: Channel;
     onUpgrade: Channel;
+    onPing: Channel;
     open: () => Promise<Event>;
     sendRequest: (data: any, options?: RequestOptions<T>) => Promise<any>;
     sendPacked: (data: any) => void;
