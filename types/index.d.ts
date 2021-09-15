@@ -32,7 +32,7 @@ declare class WebSocketAsPromised<T = void> {
 
 declare interface RequestOptions<T> {
     requestId?: string | number;
-    requestMetaData?: T;
+    requestMetadata?: T;
     timeout?: number;
 }
 
